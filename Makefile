@@ -43,9 +43,13 @@ SOURCES		:=	source
 DATA		:=	data
 INCLUDES	:=	include
 
-APP_VERSION := 1.0.2
-APP_TITLE   := 90DNS Testing Utlity
-APP_AUTHOR  := Nexrem
+APP_VERSION	:= borealis v1
+APP_TITLE	:= 90DNS Testing Utlity
+APP_AUTHOR	:= Nexrem
+
+ROMFS				:= resources
+BOREALIS_PATH		:= .
+BOREALIS_RESOURCES	:= romfs:/
 
 #---------------------------------------------------------------------------------
 # options for code generation
@@ -55,14 +59,14 @@ ARCH	:=	-march=armv8-a+crc+crypto -mtune=cortex-a57 -mtp=soft -fPIE
 CFLAGS	:=	-g -Wall -O2 -ffunction-sections \
 			$(ARCH) $(DEFINES)
 
-CFLAGS	+=	$(INCLUDE) -D__SWITCH__
+CFLAGS	+=	$(INCLUDE) -D__SWITCH__ -DBOREALIS_RESOURCES="\"$(BOREALIS_RESOURCES)\""
 
-CXXFLAGS	:= $(CFLAGS) -fno-rtti -fno-exceptions
+CXXFLAGS	:= $(CFLAGS) -fno-exceptions -std=c++1z
 
 ASFLAGS	:=	-g $(ARCH)
 LDFLAGS	=	-specs=$(DEVKITPRO)/libnx/switch.specs -g $(ARCH) -Wl,-Map,$(notdir $*.map)
 
-LIBS	:=  -lnx
+LIBS	:=	-lnx
 
 #---------------------------------------------------------------------------------
 # list of directories containing libraries, this must be the top level containing
@@ -70,6 +74,7 @@ LIBS	:=  -lnx
 #---------------------------------------------------------------------------------
 LIBDIRS	:= $(PORTLIBS) $(LIBNX)
 
+include $(TOPDIR)/lib/borealis/library/borealis.mk
 
 #---------------------------------------------------------------------------------
 # no real need to edit anything past this point unless you need to add additional
