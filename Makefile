@@ -49,7 +49,7 @@ APP_AUTHOR	:= Nexrem
 
 ROMFS				:= romfs
 BOREALIS_PATH		:= lib/borealis
-BOREALIS_RESOURCES	:= romfs:/borealis
+BOREALIS_RESOURCES	:= romfs:/borealis/
 
 #---------------------------------------------------------------------------------
 # options for code generation
