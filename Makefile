@@ -47,9 +47,9 @@ APP_VERSION	:= borealis v1
 APP_TITLE	:= 90DNS Testing Utlity
 APP_AUTHOR	:= Nexrem
 
-ROMFS				:= resources
-BOREALIS_PATH		:= .
-BOREALIS_RESOURCES	:= romfs:/
+ROMFS				:= romfs
+BOREALIS_PATH		:= lib/borealis
+BOREALIS_RESOURCES	:= romfs:/borealis
 
 #---------------------------------------------------------------------------------
 # options for code generation
@@ -74,7 +74,7 @@ LIBS	:=	-lnx
 #---------------------------------------------------------------------------------
 LIBDIRS	:= $(PORTLIBS) $(LIBNX)
 
-include $(TOPDIR)/lib/borealis/library/borealis.mk
+include $(TOPDIR)/$(BOREALIS_PATH)/library/borealis.mk
 
 #---------------------------------------------------------------------------------
 # no real need to edit anything past this point unless you need to add additional
