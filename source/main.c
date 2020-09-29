@@ -14,7 +14,6 @@ void checkHostnames();
 // 90dns.test -> 95.216.149.205
 const char *hostnames[] = {
 	"nintendo.com",
-	"nintendo.com",
 	"nintendo.net",
 	"nintendo.jp",
 	"nintendo.co.jp",
@@ -44,7 +43,10 @@ const char *hostnames[] = {
 	"nintendo.co.za",
 	"nintendo.se",
 	"nintendo.ch",
-	"potato.nintendo.com"
+	"potato.nintendo.com",
+	"nintendoswitch.com",
+	"nintendoswitch.com.cn",
+	"nintendoswitch.cn"
 };
 
 int main(int argc, char **argv)
