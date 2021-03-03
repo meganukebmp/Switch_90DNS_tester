@@ -1,0 +1,6 @@
+*.sublime-project
+*.sublime-workspace
+*.elf
+*.nro
+*.nacp
+build/
