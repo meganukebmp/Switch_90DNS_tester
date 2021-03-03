@@ -50,6 +50,11 @@ const char *hostnames[] = {
 int main(int argc, char **argv)
 {
     consoleInit(NULL);
+
+    padConfigureInput(1, HidNpadStyleSet_NpadFullCtrl);
+    PadState pad;
+    padInitializeAny(&pad);
+
 	socketInitializeDefault();
 
 	printf("90DNS Testing Utility\n\n");
@@ -60,10 +65,10 @@ int main(int argc, char **argv)
     while(appletMainLoop())
     {
         //Scan all the inputs. This should be done once for each frame
-        hidScanInput();
+        padUpdate(&pad);
 
 		// get key pressed for player 1
-        u64 kDown = hidKeysDown(CONTROLLER_P1_AUTO);
+        u64 kDown = padGetButtonsDown(&pad);
 
         // exit on B
         if (kDown & KEY_B) break;
