@@ -4,107 +4,87 @@
 #include <string.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
+#include "main.h"
 
-int resolveHostname(const char* hostname);
-void checkHostnames();
-
-// TODO: Handle these
-// conntest.nintendowifi.net -> 95.216.149.205
-// ctest.cdn.nintendo.net -> 95.216.149.205
-// 90dns.test -> 95.216.149.205
-const char *hostnames[] = {
-	"nintendo.com",
-	"nintendo.com",
-	"nintendo.net",
-	"nintendo.jp",
-	"nintendo.co.jp",
-	"nintendo.co.uk",
-	"nintendo-europe.com",
-	"nintendowifi.net",
-	"nintendo.es",
-	"nintendo.co.kr",
-	"nintendo.tw",
-	"nintendo.com.hk",
-	"nintendo.com.au",
-	"nintendo.co.nz",
-	"nintendo.at",
-	"nintendo.be",
-	"nintendods.cz",
-	"nintendo.dk",
-	"nintendo.de",
-	"nintendo.fi",
-	"nintendo.fr",
-	"nintendo.gr",
-	"nintendo.hu",
-	"nintendo.it",
-	"nintendo.nl",
-	"nintendo.no",
-	"nintendo.pt",
-	"nintendo.ru",
-	"nintendo.co.za",
-	"nintendo.se",
-	"nintendo.ch",
-	"potato.nintendo.com"
-};
+PrintConsole *console;
 
 int main(int argc, char **argv)
 {
-    consoleInit(NULL);
+    // Initialize default console
+    console = consoleGetDefault();
+    consoleInit(console);
 
-    padConfigureInput(1, HidNpadStyleSet_NpadFullCtrl);
+    // Configure pad for player 1 accepting input from any controller
     PadState pad;
+    padConfigureInput(1, HidNpadStyleSet_NpadFullCtrl);
     padInitializeAny(&pad);
 
+    // Initialize sockets
 	socketInitializeDefault();
-
-	printf("90DNS Testing Utility\n\n");
 
 	checkHostnames();
 	
     // Main loop
     while(appletMainLoop())
     {
-        //Scan all the inputs. This should be done once for each frame
+        // Update the pad inputs
         padUpdate(&pad);
 
-		// get key pressed for player 1
+		// Get key pressed on the pad
         u64 kDown = padGetButtonsDown(&pad);
 
-        // exit on B
+        // Exit on B
         if (kDown & KEY_B) break;
-        // retry on X
+        // Retry on X
         if (kDown & KEY_X)
         {
         	consoleClear();
         	checkHostnames();
         }
-
-        consoleUpdate(NULL);
     }
 	
 	// stop sockets before quit
 	socketExit();
-    consoleExit(NULL);
+    consoleExit(console);
     return 0;
 }
 
 void checkHostnames() 
 {
-	// iterate through hostnames array
-	for (int i = 0; i < sizeof(hostnames)/sizeof(hostnames[0]); ++i)
+    printf("90DNS Testing Utility v1.0.2\n\n");
+    printf("Testing:\n");
+
+	// Iterate through hostnames array
+	for (int i = 0; i < sizeof(hostnames)/sizeof(hostnames[0]); i++)
 	{
-		printf("Testing %s ...", hostnames[i]);
-		// update console here so we get a "live" output
-		consoleUpdate(NULL);
-		if (resolveHostname(hostnames[i]) == 0) {
-			printf("\033[%dC\033[1;32mblocked!\033[0m\n", 40-((int)strlen(hostnames[i])+12));
+        // Print the hostname
+		printf("\x1b[2C%s", hostnames[i]);
+        // Move the cursor and print progress dots
+        printf("\x1b[%dC", 40-console->cursorX);
+        printf("...");
+        // Update console here so we get a "live" output
+        consoleUpdate(console);
+
+        // Resolve the hostname
+        int result = resolveHostname(hostnames[i]);
+
+        // Move the cursor back 3 steps to overwrite the dots and print status
+        printf("\x1b[3D");
+		if (!result) {
+            printf(CONSOLE_GREEN "blocked");
 		}
 		else 
 		{
-			printf("\033[%dC\033[1;31munblocked!\033[0m\n", 40-((int)strlen(hostnames[i])+12));
+            printf(CONSOLE_RED "unblocked");
 		}
+        // Reprint hostname with changed color
+        printf("\x1b[%dD%s\n" CONSOLE_RESET, console->cursorX-2, hostnames[i]);
+
+        consoleUpdate(console);
 	}
+
 	printf("\nPress B to exit. Press X to retry.");
+    consoleUpdate(console);
 }
 
 int resolveHostname(const char* hostname)
