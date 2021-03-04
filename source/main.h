@@ -43,7 +43,10 @@ const char *hostnames[] = {
     "nintendo.co.za",
     "nintendo.se",
     "nintendo.ch",
-    "potato.nintendo.com"
+    "nintendoswitch.cn",
+    "nintendoswitch.com.cn",
+    "nintendoswitch.com",
+    "sun.hac.lp1.d4c.nintendo.net"
 };
 
 #endif
