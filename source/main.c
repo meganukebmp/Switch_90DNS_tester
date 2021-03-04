@@ -20,17 +20,17 @@ int main(int argc, char **argv)
     padInitializeAny(&pad);
 
     // Initialize sockets
-	socketInitializeDefault();
+    socketInitializeDefault();
 
-	checkHostnames();
-	
+    checkHostnames();
+
     // Main loop
     while(appletMainLoop())
     {
         // Update the pad inputs
         padUpdate(&pad);
 
-		// Get key pressed on the pad
+        // Get key pressed on the pad
         u64 kDown = padGetButtonsDown(&pad);
 
         // Exit on B
@@ -38,13 +38,13 @@ int main(int argc, char **argv)
         // Retry on X
         if (kDown & KEY_X)
         {
-        	consoleClear();
-        	checkHostnames();
+            consoleClear();
+            checkHostnames();
         }
     }
-	
-	// stop sockets before quit
-	socketExit();
+
+    // stop sockets before quit
+    socketExit();
     consoleExit(console);
     return 0;
 }
@@ -54,11 +54,11 @@ void checkHostnames()
     printf("90DNS Testing Utility v1.0.2\n\n");
     printf("Testing:\n");
 
-	// Iterate through hostnames array
-	for (int i = 0; i < sizeof(hostnames)/sizeof(hostnames[0]); i++)
-	{
+    // Iterate through hostnames array
+    for (int i = 0; i < sizeof(hostnames)/sizeof(hostnames[0]); i++)
+    {
         // Print the hostname
-		printf("\x1b[2C%s", hostnames[i]);
+        printf("\x1b[2C%s", hostnames[i]);
         // Move the cursor and print progress dots
         printf("\x1b[%dC", 40-console->cursorX);
         printf("...");
@@ -70,41 +70,47 @@ void checkHostnames()
 
         // Move the cursor back 3 steps to overwrite the dots and print status
         printf("\x1b[3D");
-		if (!result) {
-            printf(CONSOLE_GREEN "blocked");
-		}
-		else 
-		{
-            printf(CONSOLE_RED "unblocked");
-		}
+        switch(result) {
+            case DNS_BLOCKED:
+                printf(CONSOLE_GREEN "blocked");
+                break;
+            case DNS_RESOLVED:
+                printf(CONSOLE_RED "unblocked");
+                break;
+            case DNS_UNRESOLVED:
+                printf(CONSOLE_YELLOW "unresolved");
+                break;
+        }
+
         // Reprint hostname with changed color
         printf("\x1b[%dD%s\n" CONSOLE_RESET, console->cursorX-2, hostnames[i]);
 
         consoleUpdate(console);
-	}
+    }
 
-	printf("\nPress B to exit. Press X to retry.");
+    printf("\nPress B to exit. Press X to retry.");
     consoleUpdate(console);
 }
 
-int resolveHostname(const char* hostname)
+RESOLVER_STATUS resolveHostname(const char* hostname)
 {
-	struct hostent *he;
-	struct in_addr a;
-	// use gethostbyname to attempt hostname connection
-	he = gethostbyname(hostname);
-	if (he)
-	{	
-		// go over all returned addresses for hostname
-		while (*he->h_addr_list)
-		{
-			bcopy(*he->h_addr_list++, (char *) &a, sizeof(a));
-			// succeed if any of them redirect to localhost
-			if (strcmp(inet_ntoa(a), "127.0.0.1") == 0 || strcmp(inet_ntoa(a), "0.0.0.0") == 0)
-			{
-				return 0;
-			}
-		}
-	}
-	return 1;
+    struct hostent *he;
+    struct in_addr a;
+    // use gethostbyname to attempt hostname connection
+    he = gethostbyname(hostname);
+    if (he)
+    {
+        // go over all returned addresses for hostname
+        while (*he->h_addr_list)
+        {
+            bcopy(*he->h_addr_list++, (char *) &a, sizeof(a));
+            // succeed if any of them redirect to localhost
+            if (strcmp(inet_ntoa(a), "127.0.0.1") == 0 || strcmp(inet_ntoa(a), "0.0.0.0") == 0)
+            {
+                return DNS_BLOCKED;
+            }
+        }
+        return DNS_RESOLVED;
+    }
+    return DNS_UNRESOLVED;
 }

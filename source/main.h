@@ -1,7 +1,13 @@
 #ifndef __DNSTEST_MAIN_H
 #define __DNSTEST_MAIN_H
 
-int resolveHostname(const char* hostname);
+typedef enum RESOLVER_STATUS {
+    DNS_BLOCKED,
+    DNS_RESOLVED,
+    DNS_UNRESOLVED
+} RESOLVER_STATUS;
+
+RESOLVER_STATUS resolveHostname(const char* hostname);
 void checkHostnames();
 
 // List of hostnames to test
