@@ -21,6 +21,8 @@ int main(int argc, char **argv)
 
     // Initialize sockets
     socketInitializeDefault();
+    // Initialize nifm
+    nifmInitialize(NifmServiceType_User);
 
     checkHostnames();
 
@@ -45,6 +47,8 @@ int main(int argc, char **argv)
 
     // stop sockets before quit
     socketExit();
+    // Quit nifm
+    nifmExit();
     consoleExit(console);
     return 0;
 }
@@ -52,6 +56,13 @@ int main(int argc, char **argv)
 void checkHostnames() 
 {
     printf("90DNS Testing Utility v1.0.3\n\n");
+
+    // Check if system says we're connected to a network (wifi or ethernet)
+    Result net_rc = nifmGetInternetConnectionStatus(NULL, NULL, NULL);
+    if (R_FAILED(net_rc)) {
+        printf(CONSOLE_RED "WARNING, NOT CONNECTED TO ANY NETWORK! AIRPLANE MODE?\n" CONSOLE_RESET);
+    }
+
     printf("Testing:\n");
 
     // Iterate through hostnames array
