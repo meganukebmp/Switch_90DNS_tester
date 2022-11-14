@@ -43,7 +43,7 @@ SOURCES		:=	source
 DATA		:=	data
 INCLUDES	:=	include
 
-APP_VERSION := 1.0.3
+APP_VERSION := 1.0.4
 APP_TITLE   := 90DNS Testing Utlity
 APP_AUTHOR  := Nexrem
 ICON        := appicon.jpg
