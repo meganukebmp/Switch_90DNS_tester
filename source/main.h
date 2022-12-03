@@ -49,7 +49,11 @@ const char *hostnames[] = {
     "sun.hac.lp1.d4c.nintendo.net",
     "google.com",
     "cloudflare.com",
-    "github.com"
+    "ntp.org",
+    "nist.gov",
+    "fortheusers.org",
+    "github.com",
+    "example.com"
 };
 
 #endif
