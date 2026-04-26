@@ -55,47 +55,46 @@ int main(int argc, char **argv)
 
 void checkHostnames() 
 {
-    printf("90DNS Testing Utility v1.0.4\n\n");
+    printf("90DNS Testing Utility v1.1.0\n\n");
 
     // Check if system says we're connected to a network (wifi or ethernet)
     Result net_rc = nifmGetInternetConnectionStatus(NULL, NULL, NULL);
     if (R_FAILED(net_rc)) {
         printf(CONSOLE_RED "WARNING, NOT CONNECTED TO ANY NETWORK! AIRPLANE MODE?\n" CONSOLE_RESET);
-    } else {
-        printf("Testing:\n");
+    }
+    printf("Testing:\n");
 
-        for (int i = 0; i < sizeof(hostnames) / sizeof(hostnames[0]); i++)
-        {
-            // Print hostname in a fixed-width field, then temporary dots
-            printf("  %-30s ...", hostnames[i]);
-            consoleUpdate(console);
+    for (int i = 0; i < sizeof(hostnames) / sizeof(hostnames[0]); i++)
+    {
+        // Print hostname in a fixed-width field, then temporary dots
+        printf("  %-30s ...", hostnames[i]);
+        consoleUpdate(console);
 
-            int result = resolveHostname(hostnames[i]);
+        int result = resolveHostname(hostnames[i]);
 
-            // Move back 3 characters to overwrite dots
-            printf("\x1b[3D");
+        // Move back 3 characters to overwrite dots
+        printf("\x1b[3D");
 
-            // Print the status
-            switch(result) {
-                case DNS_BLOCKED:
-                    printf(CONSOLE_GREEN "blocked" CONSOLE_RESET);
-                    break;
-                case DNS_RESOLVED:
-                    printf(CONSOLE_RED "unblocked" CONSOLE_RESET);
-                    break;
-                case DNS_UNRESOLVED:
-                    printf(CONSOLE_YELLOW "unresolved" CONSOLE_RESET);
-                    break;
-            }
-
-            // End the line cleanly
-            printf("\n");
-            consoleUpdate(console);
+        // Print the status
+        switch(result) {
+            case DNS_BLOCKED:
+                printf(CONSOLE_GREEN "blocked" CONSOLE_RESET);
+                break;
+            case DNS_RESOLVED:
+                printf(CONSOLE_RED "unblocked" CONSOLE_RESET);
+                break;
+            case DNS_UNRESOLVED:
+                printf(CONSOLE_YELLOW "unresolved" CONSOLE_RESET);
+                break;
         }
+
+        // End the line cleanly
+        printf("\n");
+        consoleUpdate(console);
     }
 
-    printf("\nPress B to exit. Press X to retry.\n");
-    consoleUpdate(console);
+printf("\nPress B to exit. Press X to retry.\n");
+consoleUpdate(console);
 }
 
 RESOLVER_STATUS resolveHostname(const char* hostname)
