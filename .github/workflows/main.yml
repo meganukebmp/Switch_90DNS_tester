@@ -1,0 +1,46 @@
+name: Build Nro
+
+on:
+  push:
+    branches: [ "*" ]
+  pull_request:
+    branches: [ "*" ]
+  workflow_dispatch:
+  workflow_call:
+
+permissions: write-all
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    container:
+      image: 'devkitpro/devkita64'
+      ##image: 'ghcr.io/irneracoonovich/devkita64'
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: build
+        run: make -j$(nproc)
+
+      - name: test
+        run: ls -la
+       
+      - name: get date/date 
+        env:
+          TZ: "America/Chicago"
+        run: | 
+          echo "NOW=$(date +'%m-%d-%Y-%I.%M.%S.%p')" >> $GITHUB_ENV
+        
+      - name: Publish GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.NOW }}
+          prerelease: false
+          draft: false
+          body: ${{ github.event.head_commit.message }}
+          files: ${{ github.event.repository.name }}.nro
+          name: "Switch Release ${{ env.NOW }}"

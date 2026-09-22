@@ -110,7 +110,7 @@ RESOLVER_STATUS resolveHostname(const char* hostname)
         {
             bcopy(*he->h_addr_list++, (char *) &a, sizeof(a));
             // succeed if any of them redirect to localhost
-            if (strcmp(inet_ntoa(a), "127.0.0.1") == 0 || strcmp(inet_ntoa(a), "0.0.0.0") == 0)
+            if (strcmp(inet_ntoa(a), "127.0.0.1") == 0 || strcmp(inet_ntoa(a), "0.0.0.0") == 0 || strcmp(inet_ntoa(a), "1.3.3.7") == 0)
             {
                 return DNS_BLOCKED;
             }
