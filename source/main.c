@@ -62,39 +62,69 @@ void checkHostnames()
     if (R_FAILED(net_rc)) {
         printf(CONSOLE_RED "WARNING, NOT CONNECTED TO ANY NETWORK! AIRPLANE MODE?\n" CONSOLE_RESET);
     }
-    printf("Testing:\n");
+    int unblocked = 0;
+    const int domainCount  = sizeof(domains) / sizeof(domains[0]);
+    const int serviceCount = sizeof(serviceHosts) / sizeof(serviceHosts[0]);
 
-    for (int i = 0; i < sizeof(hostnames) / sizeof(hostnames[0]); i++)
+    // Top-level domains, two per row to fit the 45-row console
+    printf("Domains:\n");
+    for (int i = 0; i < domainCount; i += 2)
     {
-        // Print hostname in a fixed-width field, then temporary dots
-        printf("  %-30s ...", hostnames[i]);
-        consoleUpdate(console);
-
-        int result = resolveHostname(hostnames[i]);
-
-        // Move back 3 characters to overwrite dots
-        printf("\x1b[3D");
-
-        // Print the status
-        switch(result) {
-            case DNS_BLOCKED:
-                printf(CONSOLE_GREEN "blocked" CONSOLE_RESET);
-                break;
-            case DNS_RESOLVED:
-                printf(CONSOLE_RED "unblocked" CONSOLE_RESET);
-                break;
-            case DNS_UNRESOLVED:
-                printf(CONSOLE_YELLOW "unresolved" CONSOLE_RESET);
-                break;
+        if (testHostname(domains[i], DOMAIN_FIELD_WIDTH) == DNS_RESOLVED) unblocked++;
+        if (i + 1 < domainCount)
+        {
+            if (testHostname(domains[i + 1], DOMAIN_FIELD_WIDTH) == DNS_RESOLVED) unblocked++;
         }
-
-        // End the line cleanly
         printf("\n");
         consoleUpdate(console);
     }
 
-printf("\nPress B to exit. Press X to retry.\n");
-consoleUpdate(console);
+    // Specific update/download/auth/telemetry hosts, one per row (names are long)
+    printf("\nUpdate, download & telemetry hosts:\n");
+    for (int i = 0; i < serviceCount; i++)
+    {
+        if (testHostname(serviceHosts[i], SERVICE_FIELD_WIDTH) == DNS_RESOLVED) unblocked++;
+        printf("\n");
+        consoleUpdate(console);
+    }
+
+    // Overall verdict so a single unblocked service host can't be missed in the list
+    if (unblocked == 0)
+        printf("\n" CONSOLE_GREEN "All tested hosts are blocked." CONSOLE_RESET "\n");
+    else
+        printf("\n" CONSOLE_RED "%d host(s) UNBLOCKED - console can reach Nintendo!" CONSOLE_RESET "\n", unblocked);
+
+    printf("\nPress B to exit. Press X to retry.\n");
+    consoleUpdate(console);
+}
+
+// Resolve one hostname and print it with a padded, colored status.
+// Does not print a newline so callers can place two results on one row.
+RESOLVER_STATUS testHostname(const char* hostname, int width)
+{
+    // Print hostname in a fixed-width field, then temporary dots
+    printf("  %-*s ...", width, hostname);
+    consoleUpdate(console);
+
+    RESOLVER_STATUS result = resolveHostname(hostname);
+
+    // Move back 3 characters to overwrite dots
+    printf("\x1b[3D");
+
+    // Print the status padded to 10 chars so the next column lines up
+    switch(result) {
+        case DNS_BLOCKED:
+            printf(CONSOLE_GREEN "%-10s" CONSOLE_RESET, "blocked");
+            break;
+        case DNS_RESOLVED:
+            printf(CONSOLE_RED "%-10s" CONSOLE_RESET, "unblocked");
+            break;
+        case DNS_UNRESOLVED:
+            printf(CONSOLE_YELLOW "%-10s" CONSOLE_RESET, "unresolved");
+            break;
+    }
+
+    return result;
 }
 
 RESOLVER_STATUS resolveHostname(const char* hostname)
